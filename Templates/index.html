@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whitelist Checker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="overlay">
+        <div class="content">
+            <h1 class="title">Whitelist Checker</h1>
+            <p class="description">Enter your wallet address to check your whitelist status.</p>
+
+            <form id="walletForm" class="form">
+                <input
+                    type="text"
+                    id="walletInput"
+                    class="input-field"
+                    placeholder="Enter Wallet Address"
+                    required
+                />
+                <button type="submit" class="button">Check</button>
+            </form>
+
+            <p id="resultMessage" class="result-message"></p>
+        </div>
+
+        <footer class="footer">
+            <a href="https://twitter.com/" target="_blank" class="footer-link">Twitter</a>
+            <a href="https://discord.com/" target="_blank" class="footer-link">Discord</a>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById("walletForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+    
+            const walletInput = document.getElementById("walletInput").value;
+    
+            // Validate input
+            if (!walletInput) {
+                showMessage("Please enter a wallet address.", "error");
+                return;
+            }
+    
+            try {
+                const response = await fetch("http://127.0.0.1:5000/check_wallet", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ wallet: walletInput }),
+                });
+    
+                const result = await response.json();
+    
+                if (result.status === "success") {
+                    showMessage(result.message, "success");
+                } else {
+                    showMessage(result.message, "error");
+                }
+            } catch (error) {
+                showMessage("An error occurred. Please try again later.", "error");
+                console.error(error);
+            }
+        });
+    
+        function showMessage(message, type) {
+            const resultMessage = document.getElementById("resultMessage");
+            resultMessage.textContent = message;
+            resultMessage.className = `result-message ${type}`;
+        }
+    </script>
+    
+</body>
+</html>
